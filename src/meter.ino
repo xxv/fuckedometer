@@ -4,89 +4,89 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
-#include <ArduinoJson.h>
+#include <FastLED.h>
 
-#define PIN_STATUS_LED 5
+////////////////////////////
+// Configurable stuff
+////////////////////////////
+
+#define PIN_METER      4
+#define NUM_LEDS 1
 
 // every 10 minutes
-#define UPDATE_DELAY_MS 10 * 60 * 1000
+#define UPDATE_DELAY_MIN 10
+// Calibrate this manually. This was calibrated using a 56k resistor
+#define METER_MAX 900
+
+////////////////////////////
+
+#define MINUTE_MS 60 * 1000
 
 ESP8266WiFiMulti wifi;
-
 bool statusLed = HIGH;
 
-int httpToPercentage(HTTPClient client) {
-  const char *response = client.getString().c_str();
-  StaticJsonBuffer<200> jsonBuffer;
+CRGB statusLeds[NUM_LEDS];
 
-  JsonObject& root = jsonBuffer.parseObject((char *)response);
-
-  JsonArray& latest = root["latest"];
-  JsonArray& dem = latest[0];
-  const char *demPercent = dem[1];
-
-  return strtol(demPercent, 0, 10);
+unsigned long httpToPercentageBare(HTTPClient *client) {
+  return client->getString().toInt();
 }
 
 void setup() {
-  pinMode(PIN_STATUS_LED, OUTPUT);
-  pinMode(13, INPUT);
+  FastLED.addLeds<APA102, MOSI, SCK, BGR>(statusLeds, NUM_LEDS);
+  statusLeds[0] = CRGB::Black;
+  FastLED.show();
 
-  Serial.begin(115200);
+  pinMode(PIN_METER, OUTPUT);
+  analogWrite(PIN_METER, 0);
+  // Gently sweep the meter
+  for (int i = 0; i < METER_MAX; i++) {
+    analogWrite(PIN_METER, i);
+    delay(1);
+  }
 
-  Serial.println("Connecting...");
+  delay(1000);
+  // Put the needle at the center
+  analogWrite(PIN_METER, METER_MAX/2);
+
   wifi.addAP(ap_name, ap_password);
 }
 
-void connected_loop() {
-  HTTPClient http;
+HTTPClient http;
 
+void connected_loop() {
   http.begin(http_url);
 
   int httpCode = http.GET();
-  if(httpCode) {
-      Serial.printf("Success!: %d\n", httpCode);
-      int percent = httpToPercentage(http);
-      Serial.printf("Percentage is %d\n", percent);
-      for (uint8_t i = 0; i < 3; i++) {
-        digitalWrite(PIN_STATUS_LED, HIGH);
-        delay(100);
-        digitalWrite(PIN_STATUS_LED, LOW);
-        delay(100);
-      }
-      delay(1000);
+  if(httpCode == 200) {
+    statusLeds[0] = CRGB::Green;
+    FastLED.show();
+    unsigned long percent = httpToPercentageBare(&http);
+    statusLeds[0] = CRGB::Black;
+    FastLED.show();
 
-      for (uint8_t i = 0; i < percent / 10; i++) {
-        digitalWrite(PIN_STATUS_LED, HIGH);
-        delay(100);
-        digitalWrite(PIN_STATUS_LED, LOW);
-        delay(100);
-      }
+    analogWrite(PIN_METER, map(percent, 0, 100, 0, METER_MAX));
   } else {
-      Serial.write("Error GETing\n");
+    statusLeds[0] = CRGB::Red;
+    FastLED.show();
+    delay(500);
+    statusLeds[0] = CRGB::Black;
+    FastLED.show();
   }
 
-  delay(UPDATE_DELAY_MS);
+  for (uint8_t i = 0; i < UPDATE_DELAY_MIN; i++) {
+    delay(MINUTE_MS);
+  }
 }
 
 void loop() {
-  digitalWrite(PIN_STATUS_LED, statusLed);
+  statusLeds[0] = statusLed ? CRGB::White : CRGB::Black;
+  FastLED.show();
+
   // wait for WiFi connection
    if((wifi.run() == WL_CONNECTED)) {
-      for (uint8_t i = 0; i < 3; i++) {
-      digitalWrite(PIN_STATUS_LED, HIGH);
-      delay(50);
-      digitalWrite(PIN_STATUS_LED, LOW);
-      delay(50);
-    }
-        Serial.print("Connected!\n");
-
         while (wifi.run() == WL_CONNECTED) {
           connected_loop();
         }
-
-        // Turn off again
-        digitalWrite(PIN_STATUS_LED, LOW);
     }
 
   delay(500);
