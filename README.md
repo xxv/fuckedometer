@@ -10,6 +10,9 @@ not yet as fucked as they could be.
 
 [![a photo of the meter](meter_photo.small.jpg)](meter_photo.jpg)
 
+The data come from [PredictWise](http://predictwise.com/) and show the
+predicted outcome of [the 2016 presidential election](http://predictwise.com/politics/2016-president-winner).
+
 Building One
 ------------
 
