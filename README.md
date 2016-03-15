@@ -6,6 +6,10 @@ you all you need to know about the upcoming presidential election. Keep it by
 your desk as a gentle reminder that (at least as of this writing) things are
 not yet as fucked as they could be.
 
+[Watch it in action!](https://www.youtube.com/watch?v=CyeYWI34pMM)
+
+[![a photo of the meter](meter_photo.small.jpg)](meter_photo.jpg)
+
 Building One
 ------------
 
@@ -29,6 +33,8 @@ Optional
 
 Recipe
 ------
+
+First copy `Secrets.h.example` to `Secrets.h` and enter in your Wifi credentials.
 
 Flash the ESP8266 with software included in this repository. I used Platform.io
 to compile it, but you should be able to use any number of tools fairly easily.
