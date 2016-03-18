@@ -1,28 +1,35 @@
-#include "Secrets.h"
-
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>
+
 #include <ESP8266HTTPClient.h>
 #include <FastLED.h>
+#include <Ticker.h>
 
 ////////////////////////////
 // Configurable stuff
 ////////////////////////////
 
-#define PIN_METER      4
-#define NUM_LEDS 1
+#define PIN_METER 4
+#define NUM_LEDS  1
 
 // every 10 minutes
 #define UPDATE_DELAY_MIN 10
 // Calibrate this manually. This was calibrated using a 56k resistor
 #define METER_MAX 900
 
+const char *http_url = "http://xxv.so/fuckedometer";
+
 ////////////////////////////
 
 #define MINUTE_MS 60 * 1000
 
-ESP8266WiFiMulti wifi;
+WiFiManager wifiManager;
+Ticker ticker;
+HTTPClient http;
+
 bool statusLed = HIGH;
 
 CRGB statusLeds[NUM_LEDS];
@@ -48,12 +55,29 @@ void setup() {
   // Put the needle at the center
   analogWrite(PIN_METER, METER_MAX/2);
 
-  wifi.addAP(ap_name, ap_password);
+  wifiManager.setAPCallback(configModeCallback);
+  if (!wifiManager.autoConnect("Fuckedometer")) {
+    ESP.reset();
+    delay(1000);
+  }
+
+  ticker.detach();
+
+  statusLeds[0] = CRGB::Yellow;
+  FastLED.show();
 }
 
-HTTPClient http;
+void tick() {
+  statusLeds[0] = statusLed ? CRGB::White : CRGB::Black;
+  FastLED.show();
+  statusLed = !statusLed;
+}
 
-void connected_loop() {
+void configModeCallback (WiFiManager *myWiFiManager) {
+  ticker.attach(0.2, tick);
+}
+
+void loop() {
   http.begin(http_url);
 
   int httpCode = http.GET();
@@ -76,20 +100,4 @@ void connected_loop() {
   for (uint8_t i = 0; i < UPDATE_DELAY_MIN; i++) {
     delay(MINUTE_MS);
   }
-}
-
-void loop() {
-  statusLeds[0] = statusLed ? CRGB::White : CRGB::Black;
-  FastLED.show();
-
-  // wait for WiFi connection
-   if((wifi.run() == WL_CONNECTED)) {
-        while (wifi.run() == WL_CONNECTED) {
-          connected_loop();
-        }
-    }
-
-  delay(500);
-
-  statusLed = statusLed == LOW ? HIGH : LOW;
 }
