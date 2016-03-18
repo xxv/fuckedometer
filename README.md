@@ -13,6 +13,22 @@ not yet as fucked as they could be.
 The data come from [PredictWise](http://predictwise.com/) and show the
 predicted outcome of [the 2016 presidential election](http://predictwise.com/politics/2016-president-winner).
 
+Usage
+-----
+
+Please make sure to charge your Presidential Fuckedometer fully before
+disconnecting it from the power supply for the first time.
+
+When you first turn on your Presidential Fuckedometer, its status light should
+be blinking white. From your computer, connect to the `Fuckedometer` wifi
+access point. When you are connected, open a web browser and visit
+
+    http://192.168.4.1/
+
+From there, follow the directions to select the appropriate access point and
+enter your wifi password. The Presidential Fuckedometer will automatically
+connect to this access point going forward.
+
 Building One
 ------------
 
@@ -36,8 +52,6 @@ Optional
 
 Recipe
 ------
-
-First copy `Secrets.h.example` to `Secrets.h` and enter in your Wifi credentials.
 
 Flash the ESP8266 with software included in this repository. I used Platform.io
 to compile it, but you should be able to use any number of tools fairly easily.
