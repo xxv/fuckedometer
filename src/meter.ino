@@ -20,7 +20,10 @@
 // Calibrate this manually. This was calibrated using a 56k resistor
 #define METER_MAX 900
 
-const char *http_url = "http://xxv.so/fuckedometer";
+#define HAPPY_MAX  2
+#define FUCKED_MIN 98
+
+const char *http_url = "http://fuckedometer.com/fuckedometer";
 
 ////////////////////////////
 
@@ -28,14 +31,33 @@ const char *http_url = "http://xxv.so/fuckedometer";
 
 WiFiManager wifiManager;
 Ticker ticker;
+Ticker blink_ticker;
 HTTPClient http;
 
 bool statusLed = HIGH;
 
 CRGB statusLeds[NUM_LEDS];
 
+unsigned long percent = 0;
+
 unsigned long httpToPercentageBare(HTTPClient *client) {
   return client->getString().toInt();
+}
+
+void blink_error(void) {
+  for (uint8_t i = 0; i < 3; i++) {
+    statusLeds[0] = CRGB::Red;
+    FastLED.show();
+    delay(250);
+    statusLeds[0] = CRGB::Black;
+    FastLED.show();
+    delay(250);
+  }
+}
+
+void update_meter(unsigned long percentage) {
+  analogWrite(PIN_METER, map(percentage, 0, 100, 0, METER_MAX));
+  percent = percentage;
 }
 
 void setup() {
@@ -53,7 +75,7 @@ void setup() {
 
   delay(1000);
   // Put the needle at the center
-  analogWrite(PIN_METER, METER_MAX/2);
+  update_meter(50);
 
   wifiManager.setAPCallback(configModeCallback);
   if (!wifiManager.autoConnect("Fuckedometer")) {
@@ -65,12 +87,47 @@ void setup() {
 
   statusLeds[0] = CRGB::Yellow;
   FastLED.show();
+  blink_ticker.attach(0.1, blink_tick);
 }
 
 void tick() {
   statusLeds[0] = statusLed ? CRGB::White : CRGB::Black;
   FastLED.show();
   statusLed = !statusLed;
+}
+
+int blink_frame = 0;
+const int frame_count = 30;
+const int red_step = 255 / (frame_count/2);
+
+void blink_tick() {
+  if (percent <= HAPPY_MAX) {
+    uint8_t segment = blink_frame / (frame_count/4);
+    switch (segment) {
+      case 0:
+      statusLeds[0] = CRGB::Red;
+      break;
+      case 1:
+      statusLeds[0] = CRGB::White;
+      break;
+      case 2:
+      statusLeds[0] = CRGB::Blue;
+      break;
+      case 3:
+      statusLeds[0] = CRGB::Black;
+      break;
+    }
+    FastLED.show();
+  } else if (percent >= FUCKED_MIN) {
+    statusLeds[0].blue = 0;
+    statusLeds[0].green = 0;
+    statusLeds[0].red = blink_frame <= frame_count/2
+      ? red_step * blink_frame
+      : red_step * (frame_count/2 - blink_frame);
+    FastLED.show();
+  }
+
+  blink_frame = (blink_frame + 1) % frame_count;
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
@@ -84,17 +141,11 @@ void loop() {
   if(httpCode == 200) {
     statusLeds[0] = CRGB::Green;
     FastLED.show();
-    unsigned long percent = httpToPercentageBare(&http);
+    update_meter(httpToPercentageBare(&http));
     statusLeds[0] = CRGB::Black;
     FastLED.show();
-
-    analogWrite(PIN_METER, map(percent, 0, 100, 0, METER_MAX));
   } else {
-    statusLeds[0] = CRGB::Red;
-    FastLED.show();
-    delay(500);
-    statusLeds[0] = CRGB::Black;
-    FastLED.show();
+    blink_error();
   }
 
   for (uint8_t i = 0; i < UPDATE_DELAY_MIN; i++) {
