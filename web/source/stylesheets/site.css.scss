@@ -1,0 +1,80 @@
+@charset "utf-8";
+@import "normalize";
+
+@import "bourbon";
+@import "neat";
+
+@import url(https://fonts.googleapis.com/css?family=Old+Standard+TT);
+$mobile: new-breakpoint(max-width 500px 4);
+
+body {
+	font-family: 'Old Standard TT', serif;
+	background-color: #eeeee0;
+	text-align: justify;
+
+}
+h1 {
+	font-size: modular-scale(7);
+	text-align: center;
+	margin-top: 0.1em;
+	margin-bottom: 0.1em;
+	border-bottom: 8px solid black;
+
+	@include media( $mobile ) {
+		font-size: modular-scale(4);
+	}
+}
+
+h2 {
+  text-transform: uppercase;
+  font-size: modular-scale(2);
+  text-align: center;
+}
+
+a {
+  color: #000;
+}
+
+a:active, a:visited {
+  color: #222;
+}
+
+
+p {
+  margin-top: modular-scale(1);
+}
+
+section {
+	@include outer-container;
+	aside {
+		@include span-columns(4);
+	}
+	article {
+		@include span-columns(4);
+	}
+	aside.right {
+	}
+
+
+	@include media( $mobile ) {
+		aside {
+			@include span-columns(4);
+		}
+		article {
+			@include span-columns(4);
+		}
+	}
+}
+
+article canvas {
+	width: 100%;
+	margin-left: auto; margin-right: auto;
+}
+
+article figure {
+  margin-top: modular-scale(1);
+}
+
+.footnote {
+  text-decoration: underline dotted;
+ }

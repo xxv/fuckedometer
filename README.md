@@ -1,6 +1,8 @@
 The Presidential Fuckedometer
 =============================
 
+Please see <a href="http://fuckedometer.com">Fuckedometer.com</a> for more details.
+
 How fucked are we likely to be? This open source wifi-enabled IoT device tells
 you all you need to know about the upcoming presidential election. Keep it by
 your desk as a gentle reminder that (at least as of this writing) things are
