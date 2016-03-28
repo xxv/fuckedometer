@@ -18,9 +18,6 @@ predicted outcome of [the 2016 presidential election](http://predictwise.com/pol
 Usage
 -----
 
-Please make sure to charge your Presidential Fuckedometer fully before
-disconnecting it from the power supply for the first time.
-
 When you first turn on your Presidential Fuckedometer, its status light should
 be blinking white. From your computer, connect to the `Fuckedometer` wifi
 access point. When you are connected, open a web browser and visit
