@@ -12,11 +12,11 @@ function diffuser_bottom(top_od, x, h, wall, bottom_thickness, print_slop, res) 
       union(
         cylinder({r: id/2, h: bottom_thickness, fn: res}),
         translate([-x/2, -x/2, 0],
-          cube({size: [x, x, h]})
+          cube({size: [x, x, h + bottom_thickness]})
           )
       ),
         translate([-x/2 + wall, -x/2 + wall, 0],
-          cube({size: [x-wall*2, x-wall*2, h+wall]}))
+          cube({size: [x-wall*2, x-wall*2, h+wall + bottom_thickness]}))
     );
 }
 
@@ -33,11 +33,11 @@ function getParameterDefinitions() {
     { name: 'part', type: 'choice', initial: "assembly", values: ["top", "bottom", "assembly"], caption: "Part" },
     { name: 'diameter', type: 'float', initial: 30, caption: "Diffuser diameter" },
     { name: 'height', type: 'float', initial: 6, caption: "Diffuser height" },
-    { name: 'cube_size', type: 'float', initial: 6, caption: "Cube size" },
-    { name: 'cube_h', type: 'float', initial: 2, caption: "Cube height" },
-    { name: 'bottom_thickness', type: 'float', initial: 0.5, caption: "Bottom thickness" },
+    { name: 'cube_size', type: 'float', initial: 6-0.2, caption: "Cube size" },
+    { name: 'cube_h', type: 'float', initial: 3, caption: "Cube height" },
+    { name: 'bottom_thickness', type: 'float', initial: 1, caption: "Bottom thickness" },
     { name: 'wall', type: 'float', initial: 0.2, caption: "Wall thickness" },
-    { name: 'print_slop', type: 'float', initial: 0.2, caption: "Print slop" },
+    { name: 'print_slop', type: 'float', initial: 0.65, caption: "Print slop" },
     { name: 'res', type: 'int', initial: 120, caption: "Resolution" }
     ];
 }
