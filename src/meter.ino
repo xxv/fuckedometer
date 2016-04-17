@@ -18,7 +18,8 @@
 // every 10 minutes
 #define UPDATE_DELAY_MIN 10
 // Calibrate this manually. This was calibrated using a 56k resistor
-#define METER_MAX 900
+#define METER_OFFSET  100
+#define METER_MAX     ((METER_OFFSET * PWMRANGE) / 100)
 
 #define HAPPY_MAX  2
 #define FUCKED_MIN 98
