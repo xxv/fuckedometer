@@ -33,12 +33,15 @@ WiFiManager wifiManager;
 Ticker ticker;
 Ticker blink_ticker;
 HTTPClient http;
+char request_url[64];
 
 bool statusLed = HIGH;
 
 CRGB statusLeds[NUM_LEDS];
 
 unsigned long percent = 0;
+
+uint8_t mac[WL_MAC_ADDR_LENGTH];
 
 unsigned long httpToPercentageBare(HTTPClient *client) {
   return client->getString().toInt();
@@ -84,6 +87,9 @@ void setup() {
   }
 
   ticker.detach();
+
+  WiFi.macAddress(mac);
+  sprintf(request_url, "%s?id=%x%x%x%x", http_url, mac[2], mac[3], mac[4], mac[5]);
 
   statusLeds[0] = CRGB::Yellow;
   FastLED.show();
@@ -135,7 +141,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 }
 
 void loop() {
-  http.begin(http_url);
+  http.begin(request_url);
 
   int httpCode = http.GET();
   if(httpCode == 200) {
