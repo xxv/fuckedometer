@@ -38,6 +38,7 @@ char request_url[64];
 bool statusLed = HIGH;
 
 CRGB statusLeds[NUM_LEDS];
+uint8_t onLight = 0;
 
 unsigned long percent = 0;
 
@@ -130,6 +131,13 @@ void blink_tick() {
     statusLeds[0].red = blink_frame <= frame_count/2
       ? red_step * blink_frame
       : red_step * (frame_count/2 - blink_frame);
+    FastLED.show();
+  } else {
+    if (blink_frame == 0) {
+      onLight = (onLight + 1) % 3;
+    }
+
+    statusLeds[0] = (onLight == 0 && blink_frame == 0) ? CRGB::White : CRGB::Black;
     FastLED.show();
   }
 
