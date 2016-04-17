@@ -34,7 +34,7 @@ function getParameterDefinitions() {
     { name: 'diameter', type: 'float', initial: 30, caption: "Diffuser diameter" },
     { name: 'height', type: 'float', initial: 6, caption: "Diffuser height" },
     { name: 'cube_size', type: 'float', initial: 6-0.2, caption: "Cube size" },
-    { name: 'cube_h', type: 'float', initial: 3, caption: "Cube height" },
+    { name: 'cube_h', type: 'float', initial: 2, caption: "Cube height" },
     { name: 'bottom_thickness', type: 'float', initial: 1, caption: "Bottom thickness" },
     { name: 'wall', type: 'float', initial: 0.2, caption: "Wall thickness" },
     { name: 'print_slop', type: 'float', initial: 0.65, caption: "Print slop" },
