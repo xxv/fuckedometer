@@ -71,6 +71,8 @@ The software in this repository is licensed under the [GPL version 3 (GPLv3)][gp
 
 The artwork in this repository is licensed under the [Creative Commons BY-SA 4.0][cc-by-sa] license.
 
+Donkey image CC-BY Flickr user DonkeyHotey https://www.flickr.com/photos/donkeyhotey/6262125702
+
 [huzzah]: https://www.adafruit.com/products/2821
 [meter]: https://www.adafruit.com/products/252
 [gplv3]: http://www.gnu.org/licenses/gpl-3.0.en.html
