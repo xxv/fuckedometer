@@ -1,5 +1,5 @@
-The Presidential Fuckedometer
-=============================
+The Fuckedometer
+================
 
 Please see <a href="http://fuckedometer.com">Fuckedometer.com</a> for more details.
 
@@ -18,15 +18,15 @@ predicted outcome of [the 2016 presidential election](http://predictwise.com/pol
 Usage
 -----
 
-When you first turn on your Presidential Fuckedometer, its status light should
-be blinking white. From your computer, connect to the `Fuckedometer` wifi
-access point. When you are connected, open a web browser and visit
+When you first turn on your Fuckedometer, its status light should be blinking
+white. From your computer, connect to the `Fuckedometer` wifi access point.
+When you are connected, open a web browser and visit
 
     http://192.168.4.1/
 
 From there, follow the directions to select the appropriate access point and
-enter your wifi password. The Presidential Fuckedometer will automatically
-connect to this access point going forward.
+enter your wifi password. The Fuckedometer will automatically connect to this
+access point going forward.
 
 Building One
 ------------
