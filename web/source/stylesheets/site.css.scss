@@ -4,12 +4,15 @@
 @import "bourbon";
 @import "neat";
 
+$page-color: #eeeee0;
+$second-color: #af0000;
+
 @import url(https://fonts.googleapis.com/css?family=Old+Standard+TT);
 $mobile: new-breakpoint(max-width 500px 4);
 
 body {
 	font-family: 'Old Standard TT', serif;
-	background-color: #eeeee0;
+	background-color: $page-color;
 	text-align: justify;
 
 }
@@ -75,9 +78,39 @@ article canvas {
 }
 
 article figure {
-  margin-top: modular-scale(1);
+	margin-top: modular-scale(1);
 }
 
 .footnote {
-  text-decoration: underline dotted;
+	text-decoration: underline dotted;
  }
+
+.button {
+	text-decoration: none;
+	display: inline-block;
+	padding: 1em;
+
+	border: 1px solid $second-color;
+	@include border-top-radius(10px);
+	@include border-bottom-radius(10px);
+
+	background: repeating-linear-gradient(
+	  -45deg,
+	  $second-color,
+	  $second-color 2px,
+	  rgba(0,0,0,0) 2px,
+	  rgba(0,0,0,0) 10px
+	);
+	span {
+		display: block;
+		background-color: $page-color;
+		text-align: center;
+		font-size: modular-scale(3);
+		border: 1px solid $second-color;
+		color: $second-color;
+		text-transform: uppercase;
+		padding-top: 5px;
+		padding-left: 5px;
+		padding-right: 5px;
+	}
+}
