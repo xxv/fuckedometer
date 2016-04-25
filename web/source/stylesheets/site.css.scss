@@ -81,6 +81,16 @@ article figure {
 	margin-top: modular-scale(1);
 }
 
+figure img {
+	width: 100%;
+}
+
+figcaption {
+	font-weight: bold;
+	font-size: 75%;
+	text-transform: uppercase;
+}
+
 .footnote {
 	text-decoration: underline dotted;
  }
