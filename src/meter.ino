@@ -5,6 +5,7 @@
 #include <WiFiManager.h>
 
 #include <ESP8266HTTPClient.h>
+#define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
 #include <Ticker.h>
 
