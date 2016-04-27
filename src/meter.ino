@@ -87,12 +87,16 @@ void blink_tick() {
           case 0:
           color = CRGB::Red;
           break;
+
           case 1:
           color = CRGB::White;
           break;
+
           case 2:
           color = CRGB::Blue;
           break;
+
+          default:
           case 3:
           color = CRGB::Black;
           break;
@@ -104,7 +108,7 @@ void blink_tick() {
         color.red = blink_frame <= frame_count/2
           ? red_step * blink_frame
           : red_step * (frame_count/2 - blink_frame);
-        FastLED.show();
+        FastLED.showColor(color);
       } else {
         if (blink_frame == 0) {
           on_light = (on_light + 1) % 3;
