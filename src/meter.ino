@@ -8,6 +8,8 @@
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
 #include <Ticker.h>
+#include <ArduinoJson.h>
+#include <EEPROM.h>
 
 ////////////////////////////
 // Configurable stuff
@@ -18,13 +20,17 @@
 
 #define UPDATE_DELAY_MIN 1
 // Calibrate this manually. This was calibrated using a 56k resistor
-#define METER_OFFSET  100
-#define METER_MAX     ((METER_OFFSET * PWMRANGE) / 100)
 
 #define HAPPY_MAX  2
 #define SAD_MIN    98
 
-const char *http_url = "http://fuckedometer.com/fuckedometer";
+const char *http_url   = "http://fuckedometer.com/fuckedometer";
+const char *config_url = "http://fuckedometer.com/c/";
+
+////////////////////////////
+
+uint pref_blink = 255;
+uint pref_meter_max = PWMRANGE;
 
 ////////////////////////////
 
@@ -50,6 +56,7 @@ WiFiManager wifiManager;
 Ticker blink_ticker;
 HTTPClient http;
 char request_url[64];
+char device_id[9];
 
 CRGB statusLeds[NUM_LEDS];
 uint8_t on_light = 0;
@@ -66,7 +73,7 @@ unsigned long httpToPercentageBare(HTTPClient *client) {
 }
 
 void update_meter(unsigned long percentage) {
-  analogWrite(PIN_METER, map(percentage, 0, 100, 0, METER_MAX));
+  analogWrite(PIN_METER, map(percentage, 0, 100, 0, pref_meter_max));
   percent = percentage;
 }
 
@@ -103,7 +110,8 @@ void blink_tick() {
           on_light = (on_light + 1) % 3;
         }
 
-        FastLED.showColor((on_light == 0 && blink_frame == 0) ? CRGB::White : CRGB::Black);
+        FastLED.showColor((on_light == 0 && blink_frame == 0)
+                          ? CRGB(pref_blink,pref_blink,pref_blink) : CRGB::Black);
       }
     } else {
       color = CRGB::Red;
@@ -125,24 +133,71 @@ void configModeCallback(WiFiManager *myWiFiManager) {
   device_mode = wifi_setup;
 }
 
+void loadConfigFromServer(const char *device) {
+  StaticJsonBuffer<200> jsonBuffer;
+  char url[64];
+
+  sprintf(url, "%s%s", config_url, device_id);
+  http.begin(url);
+
+  int httpCode = http.GET();
+  if (httpCode == 200) {
+    error_status = no_error;
+    JsonObject& config = jsonBuffer.parseObject(http.getString());
+    if (config["reset"]) {
+      FastLED.showColor(CRGB::DarkViolet);
+      wifiManager.resetSettings();
+      delay(100);
+      ESP.reset();
+    }
+
+    pref_blink = config["blink"];
+
+    pref_meter_max = config["meter_max"];
+
+    if (pref_meter_max > PWMRANGE) {
+      pref_meter_max = PWMRANGE;
+    }
+
+    if (pref_meter_max) {
+      save_max(pref_meter_max);
+    }
+  }
+}
+
+uint load_max() {
+  return EEPROM.read(0) | (EEPROM.read(1) << 8);
+}
+
+void save_max(uint max) {
+  EEPROM.write(0, max & 0xff);
+  EEPROM.write(1, (max >> 8) & 0xff);
+  EEPROM.commit();
+}
+
 void setup() {
+  EEPROM.begin(128);
+  pref_meter_max = load_max();
+
+  if (pref_meter_max == 0 || pref_meter_max > PWMRANGE) {
+    pref_meter_max = PWMRANGE;
+  }
+
   FastLED.addLeds<APA102, MOSI, SCK, BGR>(statusLeds, NUM_LEDS);
   FastLED.showColor(CRGB::Black);
 
   pinMode(PIN_METER, OUTPUT);
   analogWrite(PIN_METER, 0);
   // Gently sweep the meter
-  for (int i = 0; i < METER_MAX; i++) {
+  for (int i = 0; i < pref_meter_max; i++) {
     analogWrite(PIN_METER, i);
     delay(1);
-
-    //FastLED.showColor(CHSV(0, 0, map(i, 0, METER_MAX, 0, 255)));
-    FastLED.showColor(CHSV(0, 0, 127));
+    FastLED.showColor(CHSV(0,0,map(i, 0, pref_meter_max, 0, 255)));
   }
 
   blink_ticker.attach(0.1, blink_tick);
 
-  delay(1000);
+  delay(500);
   // Put the needle at the center
   update_meter(50);
 
@@ -155,9 +210,12 @@ void setup() {
   device_mode = normal;
 
   WiFi.macAddress(mac);
-  sprintf(request_url, "%s?id=%x%x%x%x", http_url, mac[2], mac[3], mac[4], mac[5]);
+  sprintf(device_id, "%x%x%x%x", mac[2], mac[3], mac[4], mac[5]);
+  sprintf(request_url, "%s?id=%s", http_url, device_id);
 
   FastLED.showColor(CRGB::Yellow);
+
+  loadConfigFromServer(device_id);
 }
 
 void loop() {
