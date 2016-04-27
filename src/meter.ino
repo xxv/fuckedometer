@@ -166,6 +166,7 @@ void loadConfigFromServer(const char *device) {
       save_max(pref_meter_max);
     }
   }
+  http.end();
 }
 
 uint load_max() {
@@ -235,6 +236,7 @@ void loop() {
   } else {
     error_status = http_client;
   }
+  http.end();
 
   for (uint8_t i = 0; i < UPDATE_DELAY_MIN; i++) {
     delay(MINUTE_MS);
