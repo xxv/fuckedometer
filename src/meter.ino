@@ -21,7 +21,7 @@
 #define METER_MAX     ((METER_OFFSET * PWMRANGE) / 100)
 
 #define HAPPY_MAX  2
-#define FUCKED_MIN 98
+#define SAD_MIN    98
 
 const char *http_url = "http://fuckedometer.com/fuckedometer";
 
@@ -90,7 +90,7 @@ void blink_tick() {
           break;
         }
         FastLED.showColor(color);
-      } else if (percent >= FUCKED_MIN) {
+      } else if (percent >= SAD_MIN) {
         color.blue = 0;
         color.green = 0;
         color.red = blink_frame <= frame_count/2
