@@ -69,12 +69,64 @@ void update_meter(unsigned long percentage) {
   percent = percentage;
 }
 
+void blink_tick() {
+  CRGB color;
+  if (device_mode == normal) {
+    if (error_status == no_error) {
+      if (percent <= HAPPY_MAX) {
+        uint8_t segment = blink_frame / (frame_count/4);
+        switch (segment) {
+          case 0:
+          color = CRGB::Red;
+          break;
+          case 1:
+          color = CRGB::White;
+          break;
+          case 2:
+          color = CRGB::Blue;
+          break;
+          case 3:
+          color = CRGB::Black;
+          break;
+        }
+        FastLED.showColor(color);
+      } else if (percent >= FUCKED_MIN) {
+        color.blue = 0;
+        color.green = 0;
+        color.red = blink_frame <= frame_count/2
+          ? red_step * blink_frame
+          : red_step * (frame_count/2 - blink_frame);
+        FastLED.show();
+      } else {
+        if (blink_frame == 0) {
+          on_light = (on_light + 1) % 3;
+        }
+
+        FastLED.showColor((on_light == 0 && blink_frame == 0) ? CRGB::White : CRGB::Black);
+      }
+    } else {
+      color = CRGB::Red;
+
+      if (error_status == http_client) {
+        color = CRGB::Orange;
+      }
+
+      FastLED.showColor((((blink_frame / 5) % 2) == 0) ? color : CRGB::Black);
+    }
+  } else if (device_mode == wifi_setup) {
+        FastLED.showColor((((blink_frame / 5) % 2) == 0) ? CRGB::White : CRGB::Black);
+  }
+
+  blink_frame = (blink_frame + 1) % frame_count;
+}
+
+void configModeCallback(WiFiManager *myWiFiManager) {
+  device_mode = wifi_setup;
+}
+
 void setup() {
   FastLED.addLeds<APA102, MOSI, SCK, BGR>(statusLeds, NUM_LEDS);
-  statusLeds[0] = CRGB::White;
-  FastLED.show();
-
-  blink_ticker.attach(0.1, blink_tick);
+  FastLED.showColor(CRGB::Black);
 
   pinMode(PIN_METER, OUTPUT);
   analogWrite(PIN_METER, 0);
@@ -82,7 +134,12 @@ void setup() {
   for (int i = 0; i < METER_MAX; i++) {
     analogWrite(PIN_METER, i);
     delay(1);
+
+    //FastLED.showColor(CHSV(0, 0, map(i, 0, METER_MAX, 0, 255)));
+    FastLED.showColor(CHSV(0, 0, 127));
   }
+
+  blink_ticker.attach(0.1, blink_tick);
 
   delay(1000);
   // Put the needle at the center
@@ -99,64 +156,7 @@ void setup() {
   WiFi.macAddress(mac);
   sprintf(request_url, "%s?id=%x%x%x%x", http_url, mac[2], mac[3], mac[4], mac[5]);
 
-  statusLeds[0] = CRGB::Yellow;
-  FastLED.show();
-}
-
-void blink_tick() {
-  if (device_mode == normal) {
-    if (error_status == no_error) {
-      if (percent <= HAPPY_MAX) {
-        uint8_t segment = blink_frame / (frame_count/4);
-        switch (segment) {
-          case 0:
-          statusLeds[0] = CRGB::Red;
-          break;
-          case 1:
-          statusLeds[0] = CRGB::White;
-          break;
-          case 2:
-          statusLeds[0] = CRGB::Blue;
-          break;
-          case 3:
-          statusLeds[0] = CRGB::Black;
-          break;
-        }
-        FastLED.show();
-      } else if (percent >= FUCKED_MIN) {
-        statusLeds[0].blue = 0;
-        statusLeds[0].green = 0;
-        statusLeds[0].red = blink_frame <= frame_count/2
-          ? red_step * blink_frame
-          : red_step * (frame_count/2 - blink_frame);
-        FastLED.show();
-      } else {
-        if (blink_frame == 0) {
-          on_light = (on_light + 1) % 3;
-        }
-
-        statusLeds[0] = (on_light == 0 && blink_frame == 0) ? CRGB::White : CRGB::Black;
-        FastLED.show();
-      }
-    } else {
-      auto error_color = CRGB::Red;
-      if (error_status == http_server) {
-
-      }
-
-      statusLeds[0] = (((blink_frame / 5) % 2) == 0) ? error_color : CRGB::Black;
-      FastLED.show();
-    }
-  } else if (device_mode == wifi_setup) {
-        statusLeds[0] = (((blink_frame / 5) % 2) == 0) ? CRGB::White : CRGB::Black;
-        FastLED.show();
-  }
-
-  blink_frame = (blink_frame + 1) % frame_count;
-}
-
-void configModeCallback (WiFiManager *myWiFiManager) {
-  device_mode = wifi_setup;
+  FastLED.showColor(CRGB::Yellow);
 }
 
 void loop() {
