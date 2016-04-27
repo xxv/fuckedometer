@@ -19,7 +19,6 @@
 #define NUM_LEDS  1
 
 #define UPDATE_DELAY_MIN 1
-// Calibrate this manually. This was calibrated using a 56k resistor
 
 #define HAPPY_MAX  2
 #define SAD_MIN    98
@@ -29,8 +28,8 @@ const char *config_url = "http://fuckedometer.com/c/";
 
 ////////////////////////////
 
-uint pref_blink = 255;
-uint pref_meter_max = PWMRANGE;
+uint pref_blink     = 255;      // the LED brightness when blinking for "on"
+uint pref_meter_max = PWMRANGE; // the meter max value
 
 ////////////////////////////
 
@@ -127,7 +126,7 @@ void blink_tick() {
       FastLED.showColor((((blink_frame / 5) % 2) == 0) ? color : CRGB::Black);
     }
   } else if (device_mode == wifi_setup) {
-        FastLED.showColor((((blink_frame / 5) % 2) == 0) ? CRGB::White : CRGB::Black);
+    FastLED.showColor((((blink_frame / 5) % 2) == 0) ? CRGB::White : CRGB::Black);
   }
 
   blink_frame = (blink_frame + 1) % frame_count;
