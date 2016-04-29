@@ -61,7 +61,7 @@ Connect the panel's positive lead to pin 5 on the Thing using the resistor in se
 Connect the APA102 to the Thing. APA102 Clock goes to SCK. APA102 Data goes to
 Thing pin 13. APA102 Power goes to 3v and grounds to grounds.
 
-Depending on the resistor size, you may need to modify `METER_MAX` so that it
+Depending on the resistor size, you may need to modify `METER_OFFSET` so that it
 ranges properly.
 
 License
