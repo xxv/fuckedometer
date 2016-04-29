@@ -1,0 +1,4 @@
+{ "blink": 50,
+  "meter_max": 1024,
+  "reset": false
+}
