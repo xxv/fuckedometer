@@ -14,8 +14,8 @@ body {
 	font-family: 'Old Standard TT', serif;
 	background-color: $page-color;
 	text-align: justify;
-
 }
+
 h1 {
 	font-size: modular-scale(7);
 	text-align: center;
@@ -42,6 +42,11 @@ a:active, a:visited {
   color: #222;
 }
 
+@media print {
+	a {
+		text-decoration: none;
+	}
+}
 
 p {
   margin-top: modular-scale(1);
