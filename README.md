@@ -38,7 +38,7 @@ Ingredients
 
 * 1 [Adafruit Feather Huzzah][huzzah]
 * 1 [Adafruit 80mm P252 analog panel][meter]
-* 1 66k resistor
+* 1 56k resistor
 * A printout of the included meter face
 * 1 USB cord + charger
 
@@ -56,10 +56,10 @@ to compile it, but you should be able to use any number of tools fairly easily.
 
 Connect the ground of the panel to the Huzzah's ground pin.
 
-Connect the panel's positive lead to pin 5 on the Thing using the resistor in series.
+Connect the panel's positive lead to pin 4 on the Huzzah using the resistor in series.
 
-Connect the APA102 to the Thing. APA102 Clock goes to SCK. APA102 Data goes to
-Thing pin 13. APA102 Power goes to 3v and grounds to grounds.
+Connect the APA102 to the Huzzah. APA102 Clock goes to SCK (pin 14). APA102 Data goes to
+Huzzah MOSI (pin 14). APA102 Power goes to 3v, and ground to ground.
 
 Depending on the resistor size, you may need to modify `METER_OFFSET` so that it
 ranges properly.
