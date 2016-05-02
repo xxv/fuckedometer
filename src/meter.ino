@@ -214,7 +214,7 @@ void setup() {
   device_mode = normal;
 
   WiFi.macAddress(mac);
-  sprintf(device_id, "%x%x%x%x", mac[2], mac[3], mac[4], mac[5]);
+  sprintf(device_id, "%02x%02x%02x%02x", mac[2], mac[3], mac[4], mac[5]);
   sprintf(request_url, "%s?id=%s", http_url, device_id);
 
   FastLED.showColor(CRGB::Yellow);
