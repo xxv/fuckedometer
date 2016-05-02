@@ -126,7 +126,7 @@ void blink_tick() {
       FastLED.showColor((((blink_frame / 5) % 2) == 0) ? color : CRGB::Black);
     }
   } else if (device_mode == wifi_setup) {
-    FastLED.showColor((((blink_frame / 5) % 2) == 0) ? CRGB::White : CRGB::Black);
+    FastLED.showColor((((blink_frame / 5) % 2) == 0) ? CRGB::Yellow : CRGB::Black);
   }
 
   blink_frame = (blink_frame + 1) % frame_count;
