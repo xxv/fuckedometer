@@ -18,5 +18,6 @@ for table in result['tables']:
                 break
         break
 
-with open(output, 'w') as out:
-    out.write(republican_win)
+if republican_win != None:
+    with open(output, 'w') as out:
+        out.write(republican_win)
