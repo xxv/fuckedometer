@@ -22,7 +22,7 @@ function load_bg() {
 
   background.onload = function() {
     window.requestAnimationFrame(draw);
-    load();
+    window.setTimeout(load, 1000);
   }
 
   background.src = "images/meter.png";
