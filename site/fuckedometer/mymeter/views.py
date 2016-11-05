@@ -1,16 +1,34 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.http import HttpResponse
 
-from mymeter.models import Device, MeterReading
+from mymeter.models import Device, MeterReading, DataSource
 
 def index(request):
-    device_id = None
+    device = get_device(request)
+
+    if device and device.data_source:
+        value = get_latest(device).value
+    else:
+        value = 42
+    return HttpResponse("{:d}\n".format(value))
+
+def update(request):
+    for data_source in DataSource.objects.all():
+        data_source.update()
+
+    return HttpResponse("")
+
+def get_device(request):
+    device = None
     if 'id' in request.GET:
         device_id = request.GET['id']
-    device = get_object_or_404(Device, device_id=device_id)
+        try:
+            device = Device.objects.get(device_id=device_id)
+        except Device.DoesNotExist:
+            pass
 
-    return HttpResponse("{:d}\n".format(get_latest(device).value))
+    return device
 
 def get_latest(device):
-    return MeterReading.objects.filter(device=device)[0]
+    return MeterReading.objects.filter(data_source=device.data_source)[0]
 
