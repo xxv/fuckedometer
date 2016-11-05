@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 
 from mymeter.models import Device, MeterReading, DataSource, Setting
+from mymeter.tasks import update_data
 
 import json
 
@@ -35,7 +36,7 @@ def get_default_data_source():
 
 def update(request):
     for data_source in DataSource.objects.all():
-        pass
+        update_data.delay(data_source.id)
 
     return HttpResponse("")
 
