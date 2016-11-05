@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from urllib import request
+import re
 
 class Device(models.Model):
     serial_number = models.IntegerField(unique=True)
@@ -11,6 +12,9 @@ class Device(models.Model):
 
     def __str__(self):
         return '#{:d} ({:s})'.format(self.serial_number, self.device_id)
+
+class DataSourceException(Exception):
+    pass
 
 class DataSource(models.Model):
     PUBLIC = 'pub'
@@ -25,6 +29,8 @@ class DataSource(models.Model):
     creator = models.ForeignKey(User)
     privacy = models.CharField(max_length=3, choices=PRIVACY_CHOICES, default=PRIVATE)
 
+    value_re = re.compile(r'^(\d+)')
+
     def privacy_label(self):
         if self.privacy == self.PRIVATE:
             return ' (Private)'
@@ -33,7 +39,12 @@ class DataSource(models.Model):
 
     def update(self):
         with request.urlopen(self.poll_url) as response:
-            self.new_reading(response.read())
+            data_filter = self.value_re.match(response.read().decode('utf-8'))
+
+            if data_filter:
+                self.new_reading(data_filter.group(1))
+            else:
+                raise DataSourceException("Could not parse number from data source")
 
     def new_reading(self, value):
         reading = MeterReading()
@@ -54,4 +65,7 @@ class MeterReading(models.Model):
 
     def __str__(self):
         return "{:s}: {:d}".format(self.read_date, self.value)
+
+class Setting(models.Model):
+    default_data_source = models.ForeignKey(DataSource)
 

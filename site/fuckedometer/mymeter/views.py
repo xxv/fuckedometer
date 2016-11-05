@@ -1,20 +1,41 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 
-from mymeter.models import Device, MeterReading, DataSource
+from mymeter.models import Device, MeterReading, DataSource, Setting
+
+import json
 
 def index(request):
     device = get_device(request)
 
     if device and device.data_source:
-        value = get_latest(device).value
+        data_source = device.data_source
     else:
-        value = 42
+        data_source = get_default_data_source()
+    value = get_latest(data_source).value
     return HttpResponse("{:d}\n".format(value))
+
+def data_source(request, data_source_id):
+    data_source = get_object_or_404(DataSource, pk=data_source_id)
+    readings = list(map(lambda d: d.value, data_source.readings.filter()[:10]))
+
+    return HttpResponse(json.dumps(readings))
+
+def get_default_data_source():
+    data_source = None
+
+    setting = Setting.objects.get(pk=1)
+    if setting:
+        data_source = setting.default_data_source
+    else:
+        data_source = DataSource.objects.get(pk=1)
+
+    return data_source
+
 
 def update(request):
     for data_source in DataSource.objects.all():
-        data_source.update()
+        pass
 
     return HttpResponse("")
 
@@ -29,6 +50,6 @@ def get_device(request):
 
     return device
 
-def get_latest(device):
-    return MeterReading.objects.filter(data_source=device.data_source)[0]
+def get_latest(data_source):
+    return MeterReading.objects.filter(data_source=data_source)[0]
 
