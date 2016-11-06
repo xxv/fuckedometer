@@ -28,6 +28,7 @@ class DataSource(models.Model):
     poll_url = models.URLField()
     creator = models.ForeignKey(User)
     privacy = models.CharField(max_length=3, choices=PRIVACY_CHOICES, default=PRIVATE)
+    fail_count = models.IntegerField(default=0)
 
     value_re = re.compile(r'^(\d+)')
 
@@ -37,14 +38,28 @@ class DataSource(models.Model):
         else:
             return ''
 
-    def update(self):
-        with request.urlopen(self.poll_url) as response:
-            data_filter = self.value_re.match(response.read().decode('utf-8'))
+    def reset_failed(self):
+        if self.fail_count != 0:
+            self.fail_count = 0
+            self.save()
 
-            if data_filter:
-                self.new_reading(data_filter.group(1))
-            else:
-                raise DataSourceException("Could not parse number from data source")
+    def update(self):
+        if self.fail_count > 10:
+            print("Not updating data source {:s}: too many failures".format(self))
+            return
+        try:
+            with request.urlopen(self.poll_url) as response:
+                data_filter = self.value_re.match(response.read().decode('utf-8'))
+
+                if data_filter:
+                    self.new_reading(data_filter.group(1))
+                    self.reset_failed()
+                else:
+                    raise DataSourceException("Could not parse number from data source")
+        except Exception:
+            self.fail_count += 1
+            self.save()
+            raise
 
     def new_reading(self, value):
         reading = MeterReading()
