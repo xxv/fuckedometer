@@ -1,5 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
 
 from mymeter.models import Device, MeterReading, DataSource, Setting
 from mymeter.tasks import update_data
@@ -34,6 +37,8 @@ def get_default_data_source():
     return data_source
 
 
+@csrf_exempt
+@require_http_methods(['POST'])
 def update(request):
     for data_source in DataSource.objects.all():
         update_data.delay(data_source.id)
