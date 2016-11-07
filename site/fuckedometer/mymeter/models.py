@@ -8,10 +8,10 @@ class Device(models.Model):
     serial_number = models.IntegerField(unique=True)
     device_id = models.CharField(max_length=50, unique=True, verbose_name="Device ID")
     owner = models.ForeignKey(User)
-    data_source = models.ForeignKey('DataSource', null=True)
+    data_source = models.ForeignKey('DataSource', null=True, help_text='You can specify what data your device will display here')
 
     def __str__(self):
-        return '#{:d} ({:s})'.format(self.serial_number, self.device_id)
+        return '{:s}\'s Meter (#{:d})'.format(self.owner.first_name or self.owner.username, self.serial_number)
 
 class DataSourceException(Exception):
     pass
@@ -24,10 +24,10 @@ class DataSource(models.Model):
             (PRIVATE, 'Private'),
             )
 
-    name = models.CharField(max_length=100)
-    poll_url = models.URLField()
+    name = models.CharField(max_length=100, help_text='Give your data source a friendly name so you can find it later')
+    poll_url = models.URLField(verbose_name='Poll URL', help_text='The URL here should return a text/plain document containing a single number between 0 and 100')
     creator = models.ForeignKey(User)
-    privacy = models.CharField(max_length=3, choices=PRIVACY_CHOICES, default=PRIVATE)
+    privacy = models.CharField(max_length=3, choices=PRIVACY_CHOICES, default=PRIVATE, help_text='If you mark this data source Public, all users will be able to choose it as an option for their meter.')
     fail_count = models.IntegerField(default=0)
 
     value_re = re.compile(r'^(\d+)')

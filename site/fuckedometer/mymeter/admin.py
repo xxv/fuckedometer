@@ -8,6 +8,9 @@ class DataSourceAdmin(admin.ModelAdmin):
             'poll_url',
             'privacy',
             )
+    readonly_fields = (
+            'creator',
+            )
     def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
             kwargs['fields'] = self.USER_EDITABLE_FIELDS
@@ -55,8 +58,8 @@ class DeviceAdmin(admin.ModelAdmin):
         return qs.filter(owner=request.user)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'data_source':
-            kwargs['queryset'] = DataSource.objects.filter(creator=request.user)
+        if not request.user.is_superuser and db_field.name == 'data_source':
+            kwargs['queryset'] = DataSource.objects.filter(Q(creator=request.user) | Q(privacy=DataSource.PUBLIC))
         return super(DeviceAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser

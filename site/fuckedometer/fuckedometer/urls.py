@@ -15,8 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^fuckedometer', include('mymeter.urls')),
 ]
+
+admin.site.site_title = ugettext_lazy('My Meter Admin')
+admin.site.site_header = ugettext_lazy('My Meter')
+admin.site.index_title = ugettext_lazy('Configuration')
